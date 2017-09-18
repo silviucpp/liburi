@@ -160,7 +160,7 @@ when erlang:is_list(Query) ->
 
 %% @doc Convert the string or the `raw_query' portion of {@link t()} into a
 %%      {@link proplists:proplist()}, where the keys are binaries, the values
-%%      are binaries, and for valueless keys, the atom `true' is used as the
+%%      are binaries, and for valueless keys, the atom `null' is used as the
 %%      value.
 %%
 %%      For example, `"range=5-50&printable"' would result in the following
@@ -168,7 +168,7 @@ when erlang:is_list(Query) ->
 %%      <table>
 %%       <tr><th>Key</th><th>Value</th></tr>
 %%       <tr><td>"range"</td><td>"5-50"</td></tr>
-%%       <tr><td>"printable"</td><td>true</td></tr>
+%%       <tr><td>"printable"</td><td>null</td></tr>
 %%      </table>
 %%
 %%      The string needent have to be from a uri, this method is also
@@ -180,7 +180,7 @@ query_to_proplist(Query) ->
 
 %% @doc Fold over each element of a query. For instance with the
 %%      query `"range=5-50&printable"', `F' will be called as
-%%      `F("range", "5-50", Acc)' and `F("printable", true, Acc)'.
+%%      `F("range", "5-50", Acc)' and `F("printable", null, Acc)'.
 %%      Both `Key' and `Value' are already unquoted when `F' is called.
 %% @see query_to_dict/1
 -spec query_foldl(fun((proplists:property(), Acc::term()) -> term()),
@@ -196,7 +196,7 @@ query_foldl(F, Init, Query)
                             [<<>>] ->
                                 Acc;
                             [Key] ->
-                                F({unquote(Key), true}, Acc)
+                                F({unquote(Key), null}, Acc)
                         end
                 end, Init, binary:split(erlang:iolist_to_binary(Query), <<"&">>));
 query_foldl(F, Init, Query)
@@ -687,7 +687,7 @@ query_to_proplist_test() ->
     ?assertMatch([], query_to_proplist(<<>>)),
     ?assertMatch([{<<"a">>, <<"b">>}], query_to_proplist(<<"a=b&">>)),
     ?assertMatch([{<<"a">>, <<>>}], query_to_proplist(<<"a=">>)),
-    ?assertMatch([{<<"a">>, true}, {<<"b">>, <<"c">>}], query_to_proplist(<<"a&b=c">>)),
+    ?assertMatch([{<<"a">>, null}, {<<"b">>, <<"c">>}], query_to_proplist(<<"a&b=c">>)),
     ?assertMatch([{<<"a&b">>, <<"!t=f">>}], query_to_proplist(<<"a%26b=!t%3Df">>)).
 
 to_query_test() ->
