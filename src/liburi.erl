@@ -21,7 +21,7 @@
 %%%
 %%% At the moment this module isn't very sympathetic to non-http
 %%% uri's, but that could/should change in the future.
--module(uri).
+-module(liburi).
 
 -compile(export_all).
 

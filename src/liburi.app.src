@@ -1,4 +1,4 @@
-{application, uri,
+{application, liburi,
   [{description, "A library application for working with uris"},
    {vsn, "semver"},
    {modules, []},
