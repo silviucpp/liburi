@@ -109,8 +109,16 @@
 from_string(Uri)
   when erlang:is_list(Uri) ->
     from_string(erlang:iolist_to_binary(Uri));
-from_string(Uri)
-  when erlang:is_binary(Uri) ->
+from_string(Uri0)
+  when erlang:is_binary(Uri0) ->
+
+    Uri = case Uri0 of
+        <<"www.", _R/binary>> ->
+            <<"http://", Uri0/binary>>;
+        _ ->
+            Uri0
+    end,
+
     {Scheme, Uri1} = parse_scheme(Uri),
 
     {Authority, Uri2} = parse_authority(Uri1),
@@ -198,7 +206,7 @@ query_foldl(F, Init, Query)
                             [Key] ->
                                 F({unquote(Key), null}, Acc)
                         end
-                end, Init, binary:split(erlang:iolist_to_binary(Query), <<"&">>));
+                end, Init, binary:split(erlang:iolist_to_binary(Query), <<"&">>, [global]));
 query_foldl(F, Init, Query)
   when erlang:is_list(Query) ->
     lists:foldl(F, Init, Query).
@@ -400,7 +408,7 @@ parse_scheme(<<C, Rest/binary>>, Acc) ->
 parse_authority(<<$/, $/, Uri/binary>>) ->
     parse_authority(Uri, <<"">>);
 parse_authority(Uri) ->
-    Uri.
+    {<<>>, Uri}.
 
 parse_authority(<<$/, Rest/binary>>, Acc) ->
     {Acc, <<$/, Rest/binary>>};
