@@ -1,6 +1,12 @@
-{application, liburi,
-  [{description, "A library application for working with uris"},
-   {vsn, "semver"},
-   {modules, []},
-   {registered, []},
-   {applications, [kernel, stdlib]}]}.
+{application, liburi, [
+    {description, "A library application for working with uris"},
+    {vsn, "2.0"},
+    {registered, []},
+    {applications, [
+        kernel,
+        stdlib
+    ]},
+    {included_applications, []},
+    {modules, []},
+    {env, []}
+]}.
