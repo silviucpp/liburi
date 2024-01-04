@@ -1,18 +1,23 @@
+
 language: erlang
-otp_release:
-  - R16B
-  - R15B03
-  - R15B02
-  - R15B01
-  - R15B
-  - R14B04
-  - R14B03
-  - R14B02
-script: "make rebuild"
-branches:
-  only:
-    - master
-notifications:
-  email:
-    - core@erlware.org
-  irc: "irc.freenode.org#erlware"
+
+matrix:
+
+  include:
+    - os: linux
+      dist: bionic
+      otp_release: 24.3.1
+
+    - os: linux
+      dist: focal
+      otp_release: 25.0
+
+before_script:
+
+  - curl https://s3.amazonaws.com/rebar3/rebar3 --output rebar3 && chmod +x rebar3
+
+script:
+  - ./rebar3 compile
+
+after_success:
+  - ./rebar3 eunit
