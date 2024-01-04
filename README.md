@@ -1,16 +1,36 @@
-URI
-===
+# liburi
 
-[![Build Status](https://travis-ci.org/erlware/uri.png)](https://travis-ci.org/erlware/uri)
+[![Build Status](https://travis-ci.com/silviucpp/liburi.svg?branch=main)](https://travis-ci.com/github/silviucpp/liburi)
+[![GitHub](https://img.shields.io/github/license/silviucpp/liburi)](https://github.com/silviucpp/liburi/blob/main/LICENSE)
+[![Hex.pm](https://img.shields.io/hexpm/v/liburi)](https://hex.pm/packages/liburi)
 
-A module for generating, parsing, encoding, and decoding uris.
-At the moment this module isn't very sympathetic to non-http
-uri's, but that could/should change in the future.
+A module for generating, parsing, encoding, and decoding uris. 
 
-uri is a record that represents the different parts of a uri,
-as defined by rfc-2396. It has the following fields:
+## Quick Start
 
-# TODO:
-+ support uri creation
-+ support ipv6 addresses in names, see:
-  http://en.wikipedia.org/wiki/IPv6#Literal_IPv6_addresses_in_URLs
+**Compile:**
+
+```sh
+rebar3 compile
+```
+
+Simple usage:
+
+```erlang
+Uri = liburi:from_string(<<"https://example.mockable.io">>),
+liburi:host(Uri).
+<<"demo6905838.mockable.io">>
+```
+
+## TODO
+
+- support uri creation
+- support [ipv6 addresses in names][1]
+
+
+## Tests
+
+In order to run the integrity tests run `rebar3 eunit` from project root.
+
+[1]: http://en.wikipedia.org/wiki/IPv6#Literal_IPv6_addresses_in_URLs
+
