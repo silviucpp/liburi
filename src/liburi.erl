@@ -70,8 +70,8 @@
 
 % types
 
--export_type([t/0]).
--opaque t() :: #uri{}.
+-export_type([uri/0]).
+-opaque uri() :: #uri{}.
 
 %%  This is a record that represents the different parts of a uri,
 %%  as defined by rfc-2396. It has the following fields:
@@ -120,7 +120,7 @@
 %% @doc Populate a new uri record by parsing the string `Uri'
 
 -spec from_string(string() | binary()) ->
-    t().
+    uri().
 
 from_string(Uri0) when is_binary(Uri0) ->
 
@@ -144,7 +144,7 @@ from_string(Uri) when is_list(Uri) ->
 
 %% @doc Return the string this uri represents. (Same as the `raw' field)
 
--spec to_string(t()) ->
+-spec to_string(uri()) ->
     binary().
 
 to_string(#uri{raw = Raw}) ->
@@ -153,7 +153,7 @@ to_string(#uri{raw = Raw}) ->
 %% @doc Populate a new #uri record by using `Scheme' and parsing `HostPort' string `Uri'
 
 -spec from_http_1_1(binary(), binary(), binary()) ->
-    t().
+    uri().
 
 from_http_1_1(Scheme, HostPort, Uri) ->
     {Host, Port} = liburi_parser:parse_host_port(HostPort),
@@ -166,7 +166,7 @@ from_http_1_1(Scheme, HostPort, Uri) ->
 %% You probably want {@link raw/7} unless you've parsed a uri yourself.
 
 -spec new(binary(), binary(), binary(), integer() | undefined, binary(), proplists:proplist() | binary(), binary()) ->
-    t().
+    uri().
 
 new(Scheme, UserInfo, Host, Port, Path, Query, Frag) when is_binary(Query) ->
     new(Scheme, UserInfo, Host, Port, Path, query_to_proplist(Query), Frag);
@@ -195,7 +195,7 @@ query_to_proplist(Query) ->
 %% `F("range", "5-50", Acc)' and `F("printable", null, Acc)'.
 %%  Both `Key' and `Value' are already unquoted when `F' is called. @see query_to_dict/1
 
--spec query_foldl(fun((proplists:property(), Acc::term()) -> term()), Acc, proplists:proplist() | binary() | t()) ->
+-spec query_foldl(fun((proplists:property(), Acc::term()) -> term()), Acc, proplists:proplist() | binary() | uri()) ->
     Acc.
 
 query_foldl(F, Init, #uri{q = Query}) ->
@@ -300,109 +300,109 @@ quote(Str, Part) ->
 
 %% @doc Return the scheme field of {@link t()}.
 
--spec scheme(t()) -> binary().
+-spec scheme(uri()) -> binary().
 scheme(#uri{scheme = Scheme}) ->
     Scheme.
 
 %% @doc Set the scheme field of {@link t()}.
 
--spec scheme(t(), binary()) -> t().
+-spec scheme(uri(), binary()) -> uri().
 scheme(Uri, NewScheme) ->
     update_raw(Uri#uri{scheme = NewScheme}).
 
 %% @doc Return the user_info field of {@link t()}.
 
--spec user_info(t()) -> binary().
+-spec user_info(uri()) -> binary().
 user_info(#uri{user_info = UserInfo}) ->
     UserInfo.
 
 %% @doc Set the user_info field of {@link t()}.
 
--spec user_info(t(), binary()) -> t().
+-spec user_info(uri(), binary()) -> uri().
 user_info(Uri, NewUserInfo) ->
     update_raw(Uri#uri{user_info = NewUserInfo}).
 
 %% @doc Return the host field of {@link t()}.
 
--spec host(t()) -> binary().
+-spec host(uri()) -> binary().
 host(#uri{host = Host}) ->
     Host.
 
 %% @doc Set the host field of {@link t()}.
 
--spec host(t(), binary()) -> t().
+-spec host(uri(), binary()) -> uri().
 host(Uri, NewHost) ->
     update_raw(Uri#uri{host = NewHost}).
 
 %% @doc Return the port field of {@link t()}.
 
--spec port(t()) -> integer().
+-spec port(uri()) -> integer().
 port(#uri{port = Port}) ->
     Port.
 
 %% @doc Set the port field of {@link t()}.
 
--spec port(t(), integer()) -> t().
+-spec port(uri(), integer()) -> uri().
 port(Uri, NewPort) ->
     update_raw(Uri#uri{port = NewPort}).
 
 %% @doc Return the path field of {@link t()}.
 
--spec path(t()) -> binary().
+-spec path(uri()) -> binary().
 path(#uri{path = Path}) ->
     Path.
 
 %% @doc Set the path field of {@link t()}.
 
--spec path(t(), binary()) -> t().
+-spec path(uri(), binary()) -> uri().
 path(Uri, NewPath) ->
     update_raw(Uri#uri{path = NewPath}).
 
 %% @doc Append a path to the existing path of the system
 
--spec append_path(t(), binary()) -> t().
+-spec append_path(uri(), binary()) -> uri().
 append_path(Uri=#uri{path=Path}, NewPath) ->
     path(Uri, <<Path/binary, <<"/">>/binary, NewPath/binary>>).
 
 %% @doc Return the raw_query field of {@link t()}.
 
--spec raw_query(t()) -> binary().
+-spec raw_query(uri()) -> binary().
 raw_query(#uri{q = Query}) ->
     to_query(Query).
 
 %% @doc Set the raw_query field of {@link t()}.
 
--spec raw_query(t(), binary()) -> t().
+-spec raw_query(uri(), binary()) -> uri().
 raw_query(Uri, NewRawQuery) ->
     update_raw(Uri#uri{q = query_to_proplist(NewRawQuery)}).
 
 %% @doc Return the query field of {@link t()}.
 
--spec q(t()) -> proplists:proplist().
+-spec q(uri()) -> proplists:proplist().
 q(#uri{q = Query}) ->
     Query.
 
 %% @doc Set the query field of {@link t()}.
 
--spec q(t(), proplists:proplist()) -> t().
+-spec q(uri(), proplists:proplist()) -> uri().
 q(Uri, Query) when is_list(Query) ->
     update_raw(Uri#uri{q = Query}).
 
 %% @doc Return the frag field of {@link t()}.
 
--spec frag(t()) -> binary().
+-spec frag(uri()) -> binary().
 frag(#uri{frag = Frag}) ->
     Frag.
 
 %% @doc Set the frag field of {@link t()}.
 
--spec frag(t(), binary()) -> t().
+-spec frag(uri(), binary()) -> uri().
 frag(Uri, NewFrag) ->
     update_raw(Uri#uri{frag = NewFrag}).
 
 %% @doc Return the raw field of {@link t()}.
 
--spec raw(t()) -> binary().
+-spec raw(uri()) -> binary().
 raw(#uri{raw = Raw}) ->
     Raw.
 
