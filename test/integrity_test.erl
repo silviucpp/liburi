@@ -33,7 +33,7 @@ parse_path_test() ->
     ?assertMatch({<<"/a/b/c">>, <<"">>}, liburi_parser:parse_path(<<"/a/b/c">>)),
     ?assertMatch({<<"/a/b/c">>, <<"?n=5">>}, liburi_parser:parse_path(<<"/a/b/c?n=5">>)),
     ?assertMatch({<<"/a/b/c">>, <<"#anchor">>}, liburi_parser:parse_path(<<"/a/b/c#anchor">>)),
-    ?assertMatch({<<"">>, <<"">>}, liburi_parser:parse_path(<<"">>)).
+    ?assertMatch({<<"/">>, <<"">>}, liburi_parser:parse_path(<<"">>)).
 
 parse_query_test() ->
     ?assertMatch({<<"a=b">>, <<"">>}, liburi_parser:parse_query(<<"?a=b">>)),

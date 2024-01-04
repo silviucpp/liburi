@@ -55,15 +55,19 @@ parse_host_port(HostPort) ->
     end.
 
 parse_path(Uri) ->
-    parse_path(Uri, <<>>).
+    case parse_path(Uri, []) of
+        {<<>>, Rest} ->
+            {<<"/">>, Rest};
+        Result ->
+            Result
+    end.
 
-parse_path(<<C, Uri/binary>>, Acc)
-    when C == $?; C == $# ->
-    {Acc, <<C, Uri/binary>>};
+parse_path(<<C, Rest/binary>>, Acc) when C =:= $?; C =:= $# ->
+    {list_to_binary(lists:reverse(Acc)), <<C, Rest/binary>>};
+parse_path(<<C, Rest/binary>>, Acc) ->
+    parse_path(Rest, [C | Acc]);
 parse_path(<<>>, Acc) ->
-    {Acc, <<"">>};
-parse_path(<<C, Uri/binary>>, Acc) ->
-    parse_path(Uri, <<Acc/binary, C>>).
+    {list_to_binary(lists:reverse(Acc)), <<"">>}.
 
 parse_query(<<$?, Uri/binary>>) ->
     parse_query(Uri, <<>>);
