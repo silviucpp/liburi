@@ -424,7 +424,15 @@ raw(#uri{raw = Raw}) ->
 
 %% internals
 
-user_info_to_string(#uri{user_info = UserInfo}) ->
+update_raw(#uri{scheme = Scheme, user_info = UserInfo, host = Host, port = Port, path = Path, q = Qs, frag = Frag } = Uri) ->
+    UserInfoBin = user_info_to_bin(UserInfo),
+    PortBin = port_to_bin(Port),
+    PathBin = path_to_bin(Path),
+    QsBin = query_to_bin(Qs),
+    FragBin = frag_to_bin(Frag),
+    Uri#uri{raw = <<Scheme/binary, "://", UserInfoBin/binary, Host/binary, PortBin/binary, PathBin/binary, QsBin/binary, FragBin/binary>>}.
+
+user_info_to_bin(UserInfo) ->
     case byte_size(UserInfo) of
         0 ->
             UserInfo;
@@ -432,7 +440,7 @@ user_info_to_string(#uri{user_info = UserInfo}) ->
             <<UserInfo/binary, $@>>
     end.
 
-port_to_string(#uri{port = Port}) ->
+port_to_bin(Port) ->
     case Port of
         undefined ->
             <<"">>;
@@ -440,9 +448,9 @@ port_to_string(#uri{port = Port}) ->
             <<$:, (integer_to_binary(Port))/binary>>
     end.
 
-path_to_string(#uri{path = <<>>}) ->
+path_to_bin(<<>>) ->
     $/;
-path_to_string(#uri{path = Path}) ->
+path_to_bin(Path) ->
     case liburi_utils:quote(Path, path) of
         <<$/, _/binary>> ->
             Path;
@@ -450,18 +458,12 @@ path_to_string(#uri{path = Path}) ->
             <<$/, QuotedPath/binary>>
     end.
 
-query_to_string(#uri{q = []}) ->
+query_to_bin([]) ->
     <<"">>;
-query_to_string(#uri{q = Query}) ->
+query_to_bin(Query) ->
     <<$?, (to_query(Query))/binary>>.
 
-frag_to_string(#uri{frag = <<>>}) ->
+frag_to_bin(<<>>) ->
     <<>>;
-frag_to_string(#uri{frag = Frag}) ->
+frag_to_bin(Frag) ->
     <<$#, (liburi_utils:quote(Frag, frag))/binary>>.
-
-update_raw(Uri) ->
-    Uri#uri{raw = erlang:iolist_to_binary(to_iolist(Uri))}.
-
-to_iolist(Uri) ->
-    [Uri#uri.scheme, <<"://">>, user_info_to_string(Uri), Uri#uri.host, port_to_string(Uri), path_to_string(Uri), query_to_string(Uri), frag_to_string(Uri)].
