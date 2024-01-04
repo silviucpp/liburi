@@ -1,8 +1,3 @@
-*.patch
-*~
-#*#
-.*
-ebin/*
-doc/*
-deps/*
+/.idea/
 /_build/
+/liburi.iml

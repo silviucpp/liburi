@@ -9,3 +9,8 @@ uri's, but that could/should change in the future.
 
 uri is a record that represents the different parts of a uri,
 as defined by rfc-2396. It has the following fields:
+
+# TODO:
++ support uri creation
++ support ipv6 addresses in names, see:
+  http://en.wikipedia.org/wiki/IPv6#Literal_IPv6_addresses_in_URLs
