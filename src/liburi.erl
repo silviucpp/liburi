@@ -61,7 +61,7 @@
     scheme::binary(),               % <<"http">>, <<"ftp">>
     user_info= <<"">>::binary(),    % <<>> | <<"srp">>
     host= <<"">>::binary(),         % <<"somewhere.net">>
-    port= undefined::integer()|undefined,  % undefined | 80 | 8080
+    port= undefined:: non_neg_integer() | undefined, % undefined | 80 | 8080
     path= <<"">>::binary(),         % <<"/here/there/everytwhere">>
     q=[]::proplists:proplist(),     % The q as a dict
     frag= <<"">>::binary(),         % <<"some anchor">>
@@ -70,8 +70,13 @@
 
 % types
 
--export_type([uri/0]).
--opaque uri() :: #uri{}.
+-type uri() :: #uri{}.
+-type bin_string() :: binary() | list().
+-type qs() :: proplists:proplist() | binary().
+
+-export_type([
+    uri/0
+]).
 
 %%  This is a record that represents the different parts of a uri,
 %%  as defined by rfc-2396. It has the following fields:
@@ -119,7 +124,7 @@
 
 %% @doc Populate a new uri record by parsing the string `Uri'
 
--spec from_string(string() | binary()) ->
+-spec from_string(bin_string()) ->
     uri().
 
 from_string(Uri0) when is_binary(Uri0) ->
@@ -165,15 +170,23 @@ from_http_1_1(Scheme, HostPort, Uri) ->
 %% @doc Return a uri record with the given fields. Use `""' for any field that isn't used.
 %% You probably want {@link raw/7} unless you've parsed a uri yourself.
 
--spec new(binary(), binary(), binary(), integer() | undefined, binary(), proplists:proplist() | binary(), binary()) ->
+-spec new(binary(), binary(), binary(), non_neg_integer()|undefined, binary(), qs(), binary()) ->
     uri().
 
 new(Scheme, UserInfo, Host, Port, Path, Query, Frag) when is_binary(Query) ->
     new(Scheme, UserInfo, Host, Port, Path, query_to_proplist(Query), Frag);
 new(Scheme, UserInfo, Host, Port, Path, Query, Frag) when is_list(Query) ->
-    update_raw(#uri{scheme = Scheme, user_info = unquote(UserInfo), host = Host, port = Port, path = unquote(Path), q = Query, frag = unquote(Frag)}).
+    update_raw(#uri{
+        scheme = Scheme,
+        user_info = liburi_utils:unquote(UserInfo),
+        host = Host,
+        port = Port,
+        path = liburi_utils:unquote(Path),
+        q = Query,
+        frag = liburi_utils:unquote(Frag)
+    }).
 
-%% @doc Convert the string or the `raw_query' portion of {@link t()} into a {@link proplists:proplist()}, where the keys
+%% @doc Convert the string or the `raw_query' portion of {@link uri()} into a {@link proplists:proplist()}, where the keys
 %% are binaries, the values are binaries, and for valueless keys, the atom `null' is used as the value.
 %%
 %% For example, `"range=5-50&printable"' would result in the following proplist entries:
@@ -195,8 +208,8 @@ query_to_proplist(Query) ->
 %% `F("range", "5-50", Acc)' and `F("printable", null, Acc)'.
 %%  Both `Key' and `Value' are already unquoted when `F' is called. @see query_to_dict/1
 
--spec query_foldl(fun((proplists:property(), Acc::term()) -> term()), Acc, proplists:proplist() | binary() | uri()) ->
-    Acc.
+-spec query_foldl(fun((proplists:property(), Acc::term()) -> term()), Acc::term(), qs() | uri()) ->
+    Acc::term().
 
 query_foldl(F, Init, #uri{q = Query}) ->
     query_foldl(F, Init, Query);
@@ -217,11 +230,14 @@ query_foldl(F, Init, Query) when is_list(Query) ->
 %% @doc Convert a dictionary or proplist to an iolist representing the query part of a uri. Keys and values can
 %% be binaries, lists, atoms, integers or floats, and will be automatically converted to a string and quoted.
 
+-spec to_query(proplist:proplist()) ->
+    binary().
+
 to_query(List) when is_list(List) ->
     to_query(fun lists:foldl/3, List).
 
 %% @doc Return an binary representing the query part of a uri by folding over `Ds' by calling the provided `FoldF',
-%% which should take three arguments: a function, an initial accumulator value, and  the datastructure to fold over.
+%% which should take three arguments: a function, an initial accumulator value, and  the data structure to fold over.
 %% @see to_query/1
 
 -spec to_query(function(), binary() | proplist:proplist()) ->
@@ -298,61 +314,61 @@ quote(Str) ->
 quote(Str, Part) ->
     liburi_utils:quote(Str, Part).
 
-%% @doc Return the scheme field of {@link t()}.
+%% @doc Return the scheme field of {@link uri()}.
 
 -spec scheme(uri()) -> binary().
 scheme(#uri{scheme = Scheme}) ->
     Scheme.
 
-%% @doc Set the scheme field of {@link t()}.
+%% @doc Set the scheme field of {@link uri()}.
 
 -spec scheme(uri(), binary()) -> uri().
 scheme(Uri, NewScheme) ->
     update_raw(Uri#uri{scheme = NewScheme}).
 
-%% @doc Return the user_info field of {@link t()}.
+%% @doc Return the user_info field of {@link uri()}.
 
 -spec user_info(uri()) -> binary().
 user_info(#uri{user_info = UserInfo}) ->
     UserInfo.
 
-%% @doc Set the user_info field of {@link t()}.
+%% @doc Set the user_info field of {@link uri()}.
 
 -spec user_info(uri(), binary()) -> uri().
 user_info(Uri, NewUserInfo) ->
     update_raw(Uri#uri{user_info = NewUserInfo}).
 
-%% @doc Return the host field of {@link t()}.
+%% @doc Return the host field of {@link uri()}.
 
 -spec host(uri()) -> binary().
 host(#uri{host = Host}) ->
     Host.
 
-%% @doc Set the host field of {@link t()}.
+%% @doc Set the host field of {@link uri()}.
 
 -spec host(uri(), binary()) -> uri().
 host(Uri, NewHost) ->
     update_raw(Uri#uri{host = NewHost}).
 
-%% @doc Return the port field of {@link t()}.
+%% @doc Return the port field of {@link uri()}.
 
 -spec port(uri()) -> integer().
 port(#uri{port = Port}) ->
     Port.
 
-%% @doc Set the port field of {@link t()}.
+%% @doc Set the port field of {@link uri()}.
 
 -spec port(uri(), integer()) -> uri().
 port(Uri, NewPort) ->
     update_raw(Uri#uri{port = NewPort}).
 
-%% @doc Return the path field of {@link t()}.
+%% @doc Return the path field of {@link uri()}.
 
 -spec path(uri()) -> binary().
 path(#uri{path = Path}) ->
     Path.
 
-%% @doc Set the path field of {@link t()}.
+%% @doc Set the path field of {@link uri()}.
 
 -spec path(uri(), binary()) -> uri().
 path(Uri, NewPath) ->
@@ -364,43 +380,43 @@ path(Uri, NewPath) ->
 append_path(Uri=#uri{path=Path}, NewPath) ->
     path(Uri, <<Path/binary, <<"/">>/binary, NewPath/binary>>).
 
-%% @doc Return the raw_query field of {@link t()}.
+%% @doc Return the raw_query field of {@link uri()}.
 
 -spec raw_query(uri()) -> binary().
 raw_query(#uri{q = Query}) ->
     to_query(Query).
 
-%% @doc Set the raw_query field of {@link t()}.
+%% @doc Set the raw_query field of {@link uri()}.
 
 -spec raw_query(uri(), binary()) -> uri().
 raw_query(Uri, NewRawQuery) ->
     update_raw(Uri#uri{q = query_to_proplist(NewRawQuery)}).
 
-%% @doc Return the query field of {@link t()}.
+%% @doc Return the query field of {@link uri()}.
 
 -spec q(uri()) -> proplists:proplist().
 q(#uri{q = Query}) ->
     Query.
 
-%% @doc Set the query field of {@link t()}.
+%% @doc Set the query field of {@link uri()}.
 
 -spec q(uri(), proplists:proplist()) -> uri().
 q(Uri, Query) when is_list(Query) ->
     update_raw(Uri#uri{q = Query}).
 
-%% @doc Return the frag field of {@link t()}.
+%% @doc Return the frag field of {@link uri()}.
 
 -spec frag(uri()) -> binary().
 frag(#uri{frag = Frag}) ->
     Frag.
 
-%% @doc Set the frag field of {@link t()}.
+%% @doc Set the frag field of {@link uri()}.
 
 -spec frag(uri(), binary()) -> uri().
 frag(Uri, NewFrag) ->
     update_raw(Uri#uri{frag = NewFrag}).
 
-%% @doc Return the raw field of {@link t()}.
+%% @doc Return the raw field of {@link uri()}.
 
 -spec raw(uri()) -> binary().
 raw(#uri{raw = Raw}) ->
