@@ -25,8 +25,8 @@ parse_authority(<<$/, $/, Uri/binary>>) ->
 parse_authority(Uri) ->
     {<<>>, Uri}.
 
-parse_authority(<<$/, Rest/binary>>, Acc) ->
-    {Acc, <<$/, Rest/binary>>};
+parse_authority(<<C, Rest/binary>>, Acc) when C =:= $/; C =:= $? ->
+    {Acc, <<C, Rest/binary>>};
 parse_authority(<<>>, Acc) ->
     {Acc, <<>>};
 parse_authority(<<C,  Rest/binary>>, Acc) ->

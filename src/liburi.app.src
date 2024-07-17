@@ -2,7 +2,7 @@
     {description, "A library application for working with uris."},
     {licenses, ["APACHE"]},
     {links,[{"Github","https://github.com/silviucpp/liburi"}]},
-    {vsn, "3.0.0"},
+    {vsn, "3.0.1"},
     {registered, []},
     {applications, [
         kernel,

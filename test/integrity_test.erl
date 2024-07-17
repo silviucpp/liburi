@@ -57,6 +57,13 @@ proplist_query_test() ->
     Uri1 = liburi:q(Uri0, QueryPropList),
     ?assertMatch(<<"http://myhost.com:8080/my/path?foo=bar&baz=back#Section%205">>, liburi:to_string(Uri1)).
 
+no_path_test() ->
+    Uri0 = liburi:from_string(<<"https://something.free.domain.com?a=1&b=2">>),
+    ?assertMatch(<<"https">>, liburi:scheme(Uri0)),
+    ?assertMatch(<<"something.free.domain.com">>, liburi:host(Uri0)),
+    ?assertMatch(<<"/">>, liburi:path(Uri0)),
+    ?assertMatch( [{<<"a">>,<<"1">>},{<<"b">>,<<"2">>}], liburi:q(Uri0)).
+
 unquote_test() ->
     ?assertMatch(<<"ab">>, liburi:unquote(<<"ab">>)),
     ?assertMatch(<<"a b">>, liburi:unquote(<<"a+b">>)),
