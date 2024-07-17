@@ -1,6 +1,6 @@
 # liburi
 
-[![Build Status](https://travis-ci.com/silviucpp/liburi.svg?branch=master)](https://travis-ci.com/github/silviucpp/liburi)
+[![Build Status](https://app.travis-ci.com/silviucpp/liburi.svg?branch=master)](https://travis-ci.com/github/silviucpp/liburi)
 [![GitHub](https://img.shields.io/github/license/silviucpp/liburi)](https://github.com/silviucpp/liburi/blob/main/LICENSE)
 [![Hex.pm](https://img.shields.io/hexpm/v/liburi)](https://hex.pm/packages/liburi)
 
